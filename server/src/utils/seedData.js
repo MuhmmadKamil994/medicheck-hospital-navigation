@@ -15,6 +15,8 @@
  * with verified data (his homework) via the admin panel or a re-seed.
  */
 const Hospital = require('../models/Hospital');
+const Admin = require('../models/Admin');
+const bcrypt = require('bcryptjs');
 
 const SEED_HOSPITALS = [
   {
@@ -117,4 +119,35 @@ async function seedHospitalsIfEmpty() {
   return { seeded: true, count: docs.length };
 }
 
-module.exports = { SEED_HOSPITALS, seedHospitalsIfEmpty };
+/**
+ * One-time admin bootstrap for hosts without shell access (e.g. Render free tier).
+ *
+ * Set SEED_ADMIN_EMAIL + SEED_ADMIN_PASSWORD as environment variables, deploy,
+ * verify admin login works, then DELETE both variables (and redeploy).
+ *
+ * IDEMPOTENT: skips when any admin already exists or when the vars are absent.
+ * Never throws for "already seeded" — only real errors propagate, and the
+ * boot caller catches those so a seed failure can never crash the server.
+ *
+ * @returns {Promise<{seeded: boolean, email?: string, reason?: string}>}
+ */
+async function seedAdminIfConfigured() {
+  const email = (process.env.SEED_ADMIN_EMAIL || '').toLowerCase().trim();
+  const password = process.env.SEED_ADMIN_PASSWORD || '';
+  if (!email || !password) {
+    return { seeded: false, reason: 'SEED_ADMIN_EMAIL/PASSWORD not set' };
+  }
+  const existing = await Admin.countDocuments();
+  if (existing > 0) {
+    return { seeded: false, reason: `${existing} admin(s) already present` };
+  }
+  if (password.length < 8) {
+    throw new Error('SEED_ADMIN_PASSWORD must be at least 8 characters');
+  }
+  const username = email.split('@')[0].slice(0, 50) || 'admin';
+  const passwordHash = await bcrypt.hash(password, 10);
+  await Admin.create({ username, email, passwordHash, role: 'superadmin' });
+  return { seeded: true, email };
+}
+
+module.exports = { SEED_HOSPITALS, seedHospitalsIfEmpty, seedAdminIfConfigured };

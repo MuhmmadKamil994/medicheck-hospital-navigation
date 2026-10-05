@@ -73,6 +73,19 @@ connectDB().then(async (ok) => {
   } else {
     console.log('[seed] auto-seed disabled via SEED_ON_BOOT=false');
   }
+  // One-time admin bootstrap (Render free tier has no shell): set
+  // SEED_ADMIN_EMAIL + SEED_ADMIN_PASSWORD env vars, deploy, then delete them.
+  try {
+    const { seedAdminIfConfigured } = require('./utils/seedData');
+    const r = await seedAdminIfConfigured();
+    console.log(
+      r.seeded
+        ? `[seed] admin account created for ${r.email} — DELETE the SEED_ADMIN_* env vars now`
+        : `[seed] admin bootstrap skipped (${r.reason})`
+    );
+  } catch (err) {
+    console.warn('[seed] admin bootstrap failed, continuing:', err.message);
+  }
 });
 
 app.listen(PORT, () => {
