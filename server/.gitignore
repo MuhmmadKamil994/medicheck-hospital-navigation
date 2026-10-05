@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets — NEVER commit these (repo is public)
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

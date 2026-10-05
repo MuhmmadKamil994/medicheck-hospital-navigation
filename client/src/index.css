@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- MediCheck base ---------- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-[#DDD6C6] text-ink font-sans antialiased;
+}
+
+/* Accessible focus everywhere */
+:focus-visible {
+  outline: 2px solid #b07818;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Triage slip: tear-off perforation edges ---------- */
+.slip-perf {
+  background-color: #fff;
+  background-image:
+    radial-gradient(circle at 50% 50%, #faf7f1 5px, rgba(0, 0, 0, 0) 6px),
+    radial-gradient(circle at 50% 50%, #faf7f1 5px, rgba(0, 0, 0, 0) 6px);
+  background-size: 16px 22px;
+  background-position: -8px 8px, calc(100% + 8px) 8px;
+  background-repeat: repeat-y;
+}
+
+/* ---------- Rubber stamp ---------- */
+.stamp {
+  display: inline-block;
+  border: 4px double currentColor;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  padding: 9px 22px;
+  transform: rotate(-5deg);
+  border-radius: 5px;
+  text-transform: uppercase;
+  opacity: 0.94;
+}
+
+/* ---------- Map "you are here" pulse ---------- */
+@keyframes mc-pulse {
+  0% { opacity: 0.7; transform: scale(0.6); }
+  70% { opacity: 0; transform: scale(2.2); }
+  100% { opacity: 0; }
+}
+.mc-pulse {
+  animation: mc-pulse 2s infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* ---------- Skeleton shimmer (loading slip) ---------- */
+@keyframes mc-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.mc-shimmer {
+  background: linear-gradient(90deg, #f1ece0 25%, #faf7f1 50%, #f1ece0 75%);
+  background-size: 800px 100%;
+  animation: mc-shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+/* ---------- Spinner ---------- */
+@keyframes mc-spin {
+  to { transform: rotate(360deg); }
+}
+.mc-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(250, 247, 241, 0.35);
+  border-top-color: #faf7f1;
+  border-radius: 50%;
+  animation: mc-spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: -3px;
+}
+
+/* ---------- Live ticker dot ---------- */
+@keyframes mc-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.mc-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: mc-blink 2s infinite;
+}
+
+/* ---------- Micro-interactions (150–250ms everywhere) ---------- */
+.mc-btn {
+  transition: background-color 200ms ease, color 200ms ease,
+    border-color 200ms ease, box-shadow 200ms ease, transform 150ms ease;
+}
+.mc-btn:active {
+  transform: translateY(1px);
+}
+.mc-link {
+  transition: color 200ms ease, border-color 200ms ease;
+}
+.mc-card-hover {
+  transition: box-shadow 200ms ease, border-color 200ms ease,
+    transform 200ms ease;
+}
+.mc-card-hover:hover {
+  box-shadow: 0 6px 20px rgba(27, 42, 65, 0.12);
+}
+
+/* ---------- Complete button/link primitives (Phase 4b) ---------- */
+@layer components {
+  .mc-btn {
+    @apply inline-block bg-ink text-paper font-bold text-[14px] rounded-[10px] px-6 py-3.5 text-center cursor-pointer;
+  }
+  .mc-btn:hover {
+    @apply bg-ink-deep;
+  }
+  .mc-btn-ghost {
+    @apply inline-block bg-white text-ink font-bold text-[14px] rounded-[10px] px-6 py-3.5 text-center cursor-pointer border-[1.5px] border-line;
+  }
+  .mc-btn-ghost:hover {
+    @apply border-ink;
+  }
+  .mc-link {
+    @apply text-amber font-bold hover:text-[#9A6514] hover:underline cursor-pointer;
+  }
+}
+
+/* ---------- Leaflet pins (divIcon, no image assets needed) ---------- */
+.mc-leaflet-pin {
+  background: none;
+  border: none;
+}
+.mc-pin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #1b2a41;
+  border: 2.5px solid #faf7f1;
+  box-shadow: 0 2px 8px rgba(27, 42, 65, 0.4);
+  transition: transform 200ms ease, background-color 200ms ease;
+}
+.mc-pin.sel {
+  background: #b07818;
+  transform: rotate(-45deg) scale(1.3);
+}
+.mc-you {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.mc-you::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #1b2a41;
+  border: 2px solid #faf7f1;
+  box-shadow: 0 1px 6px rgba(27, 42, 65, 0.5);
+}
+.mc-you-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #1b2a41;
+  animation: mc-you-ping 2s ease-out infinite;
+}
+@keyframes mc-you-ping {
+  0% { transform: scale(0.5); opacity: 0.8; }
+  70% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.leaflet-container {
+  font-family: Inter, system-ui, sans-serif;
+  background: #e9e3d3;
+}
+
+/* ---------- Print: triage report prints cleanly ---------- */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .shadow-page {
+    box-shadow: none !important;
+  }
+  .print-slip {
+    max-width: 100% !important;
+    border: 1.5px solid #b9ae93 !important;
+  }
+}
+
+@media print {
+  /* Modals become inline so the slip prints without the dark overlay */
+  div.fixed.inset-0 {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+  }
+}
